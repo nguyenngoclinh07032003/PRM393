@@ -4,7 +4,6 @@ import 'package:appbanhang/main.dart';
 void main() {
   testWidgets('App khởi động hiển thị SplashScreen', (WidgetTester tester) async {
     await tester.pumpWidget(const Ecommerce());
-    // SplashScreen hiển thị text 'Shop App'
     expect(find.text('Shop App'), findsOneWidget);
   });
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'address_screen.dart';
-import 'app_state.dart';
-import 'cart_provider.dart';
-import 'login.dart';
+import 'providers/app_provider.dart';
+import 'providers/cart_provider.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/profile/address_screen.dart';
 
 void main() {
   runApp(const Ecommerce());
@@ -77,19 +77,9 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: Icon(Icons.shopping_bag, color: Colors.white, size: 52),
               ),
               SizedBox(height: 20),
-              Text(
-                'Shop App',
-                style: TextStyle(
-                  fontSize: 34,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
+              Text('Shop App', style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold, color: Colors.white)),
               SizedBox(height: 8),
-              Text(
-                'Mua sắm thông minh',
-                style: TextStyle(fontSize: 14, color: Color(0xCCFFFFFF)),
-              ),
+              Text('Mua sắm thông minh', style: TextStyle(fontSize: 14, color: Color(0xCCFFFFFF))),
               SizedBox(height: 80),
               CircularProgressIndicator(color: Colors.white),
             ],

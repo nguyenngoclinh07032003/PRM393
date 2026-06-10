@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'app_state.dart';
-import 'cart.dart';
-import 'cart_provider.dart';
-import 'product.dart';
-import 'profile.dart';
+import '../../models/product.dart';
+import '../../providers/app_provider.dart';
+import '../../providers/cart_provider.dart';
+import '../../utils/format.dart';
+import '../cart/cart_screen.dart';
+import '../product/product_detail_screen.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,14 +16,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  final _categories = [
-    'Tất cả',
-    'Thời trang',
-    'Điện tử',
-    'Phụ kiện',
-    'Giày dép',
-  ];
   int _selectedCategory = 0;
+
+  final _categories = ['Tất cả', 'Thời trang', 'Điện tử', 'Phụ kiện', 'Giày dép'];
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
       const CartScreen(showBackButton: false),
       const ProfileScreen(),
     ];
+
     return Scaffold(
       backgroundColor: bgColor,
       body: pages[_selectedIndex],
@@ -40,10 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
         unselectedItemColor: Colors.grey,
         onTap: (index) => setState(() => _selectedIndex = index),
         items: [
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Trang chủ',
-          ),
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
           BottomNavigationBarItem(
             icon: Badge(
               isLabelVisible: cart.totalItems > 0,
@@ -52,10 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             label: 'Giỏ hàng',
           ),
-          const BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Cá nhân',
-          ),
+          const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Cá nhân'),
         ],
       ),
     );
@@ -68,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header
             Row(
               children: [
                 const CircleAvatar(
@@ -79,74 +72,50 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Xin chào,',
-                        style: TextStyle(color: Color(0xFF888888)),
-                      ),
-                      Text(
-                        'Nguyễn Văn A',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF222222),
-                        ),
-                      ),
+                      Text('Xin chào,', style: TextStyle(color: Color(0xFF888888))),
+                      Text('Nguyễn Văn A', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF222222))),
                     ],
                   ),
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.notifications_none),
-                ),
+                IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none)),
               ],
             ),
             const SizedBox(height: 16),
+
+            // Tìm kiếm
             TextField(
               decoration: InputDecoration(
                 hintText: 'Tìm kiếm sản phẩm...',
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
               ),
             ),
             const SizedBox(height: 16),
+
+            // Banner
             Container(
               height: 110,
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [primaryColor, secondaryColor],
-                ),
+                gradient: const LinearGradient(colors: [primaryColor, secondaryColor]),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    'Giảm giá đặc biệt',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  Text(
-                    'Lên đến 50%',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    'Cho các sản phẩm nổi bật hôm nay',
-                    style: TextStyle(color: Color(0xCCFFFFFF)),
-                  ),
+                  Text('Giảm giá đặc biệt', style: TextStyle(color: Colors.white)),
+                  Text('Lên đến 50%', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                  Text('Cho các sản phẩm nổi bật hôm nay', style: TextStyle(color: Color(0xCCFFFFFF))),
                 ],
               ),
             ),
             const SizedBox(height: 16),
+
+            // Danh mục
             SizedBox(
               height: 32,
               child: ListView.builder(
@@ -155,8 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 itemBuilder: (_, index) {
                   final selected = _selectedCategory == index;
                   return GestureDetector(
-                    onTap: () =>
-                        setState(() => _selectedCategory = index),
+                    onTap: () => setState(() => _selectedCategory = index),
                     child: Container(
                       margin: const EdgeInsets.only(right: 8),
                       padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -165,34 +133,24 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: selected ? primaryColor : Colors.white,
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Text(
-                        _categories[index],
-                        style: TextStyle(
-                          color: selected ? Colors.white : Colors.black,
-                        ),
-                      ),
+                      child: Text(_categories[index], style: TextStyle(color: selected ? Colors.white : Colors.black)),
                     ),
                   );
                 },
               ),
             ),
             const SizedBox(height: 18),
+
+            // Tiêu đề sản phẩm
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Sản phẩm nổi bật',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'Xem tất cả',
-                    style: TextStyle(color: primaryColor),
-                  ),
-                ),
+                const Text('Sản phẩm nổi bật', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                TextButton(onPressed: () {}, child: const Text('Xem tất cả', style: TextStyle(color: primaryColor))),
               ],
             ),
+
+            // Grid sản phẩm
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -208,17 +166,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 final app = AppProvider.of(context);
                 final isFav = app.isFavorite(p);
                 return InkWell(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ProductDetailScreen(product: p),
-                    ),
-                  ),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailScreen(product: p))),
                   child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -229,35 +179,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                 width: double.infinity,
                                 decoration: BoxDecoration(
                                   color: p.color,
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(12),
-                                  ),
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                                 ),
-                                child: Icon(p.icon,
-                                    size: 60, color: primaryColor),
+                                child: Icon(p.icon, size: 60, color: primaryColor),
                               ),
-                              // Nút tim góc trên phải
                               Positioned(
-                                top: 6,
-                                right: 6,
+                                top: 6, right: 6,
                                 child: GestureDetector(
                                   onTap: () => app.toggleFavorite(p),
                                   child: Container(
-                                    width: 28,
-                                    height: 28,
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.white,
-                                    ),
-                                    child: Icon(
-                                      isFav
-                                          ? Icons.favorite
-                                          : Icons.favorite_border,
-                                      color: isFav
-                                          ? Colors.red
-                                          : Colors.grey,
-                                      size: 16,
-                                    ),
+                                    width: 28, height: 28,
+                                    decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                                    child: Icon(isFav ? Icons.favorite : Icons.favorite_border, color: isFav ? Colors.red : Colors.grey, size: 16),
                                   ),
                                 ),
                               ),
@@ -269,24 +202,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                p.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              Text(p.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                               const SizedBox(height: 6),
-                              Text(
-                                formatPrice(p.price),
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: primaryColor,
-                                ),
-                              ),
+                              Text(formatPrice(p.price), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: primaryColor)),
                             ],
                           ),
                         ),
