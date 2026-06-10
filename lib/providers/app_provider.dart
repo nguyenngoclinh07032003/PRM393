@@ -3,10 +3,37 @@ import '../models/product.dart';
 import '../models/order.dart';
 
 class AppNotifier extends ChangeNotifier {
+  // ── Thông tin người dùng ──
+  String _userName = '';
+  String _userEmail = '';
+  String _userPhone = '';
+
+  String get userName => _userName;
+  String get userEmail => _userEmail;
+  String get userPhone => _userPhone;
+
+  void setUserInfo({
+    required String name,
+    required String email,
+    String phone = '',
+  }) {
+    _userName = name;
+    _userEmail = email;
+    _userPhone = phone;
+    // Đồng bộ tên và SĐT vào địa chỉ giao hàng nếu chưa có
+    if (_recipientName.isEmpty || _recipientName == 'Nguyễn Văn A') {
+      _recipientName = name;
+    }
+    if (_phone.isEmpty || _phone == '0912 345 678') {
+      _phone = phone.isNotEmpty ? phone : _phone;
+    }
+    notifyListeners();
+  }
+
   // ── Địa chỉ giao hàng ──
-  String _recipientName = 'Nguyễn Văn A';
-  String _phone = '0912 345 678';
-  String _address = '123 Đường ABC, Quận 1, TP.HCM';
+  String _recipientName = '';
+  String _phone = '';
+  String _address = '';
 
   String get recipientName => _recipientName;
   String get phone => _phone;

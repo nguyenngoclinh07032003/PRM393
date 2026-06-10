@@ -68,12 +68,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Icon(Icons.person, color: Colors.white),
                 ),
                 const SizedBox(width: 10),
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Xin chào,', style: TextStyle(color: Color(0xFF888888))),
-                      Text('Nguyễn Văn A', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF222222))),
+                      const Text('Xin chào,', style: TextStyle(color: Color(0xFF888888))),
+                      Text(
+                        AppProvider.of(context).userName.isNotEmpty
+                            ? AppProvider.of(context).userName
+                            : 'Bạn',
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF222222)),
+                      ),
                     ],
                   ),
                 ),

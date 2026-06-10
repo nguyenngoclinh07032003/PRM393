@@ -41,8 +41,22 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  const Text('Nguyễn Văn A', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-                  const Text('nguyenvana@gmail.com', style: TextStyle(fontSize: 11, color: Color(0xFF888888))),
+                  Text(
+                    app.userName.isNotEmpty ? app.userName : 'Khách',
+                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    app.userEmail.isNotEmpty ? app.userEmail : 'Chưa có email',
+                    style: const TextStyle(fontSize: 11, color: Color(0xFF888888)),
+                  ),
+                  if (app.userPhone.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        app.userPhone,
+                        style: const TextStyle(fontSize: 11, color: Color(0xFF888888)),
+                      ),
+                    ),
                   const SizedBox(height: 18),
                   Row(
                     children: [

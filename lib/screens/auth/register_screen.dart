@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../providers/app_provider.dart';
 import '../../utils/format.dart';
 import 'login_screen.dart';
 
@@ -13,6 +14,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
@@ -24,6 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -53,6 +56,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
+  String? _validatePhone(String? v) {
+    if (v == null || v.trim().isEmpty) return 'Vui lòng nhập số điện thoại';
+    if (!RegExp(r'^0\d{9}$').hasMatch(v.trim())) {
+      return 'Số điện thoại không hợp lệ (VD: 0912345678)';
+    }
+    return null;
+  }
+
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
     if (!_agreeTerms) {
@@ -65,6 +76,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     await Future.delayed(const Duration(seconds: 1));
     if (!mounted) return;
     setState(() => _isLoading = false);
+
+    // Lưu thông tin user vào AppProvider để dùng xuyên suốt app
+    AppProvider.of(context).setUserInfo(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      phone: _phoneController.text.trim(),
+    );
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Đăng ký thành công! Vui lòng đăng nhập.'), backgroundColor: Colors.green),
     );
@@ -104,6 +123,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _buildField(controller: _nameController, label: 'Họ và tên', icon: Icons.person_outline, validator: _validateName, caps: TextCapitalization.words),
                 const SizedBox(height: 12),
                 _buildField(controller: _emailController, label: 'Email', icon: Icons.mail_outline, keyboard: TextInputType.emailAddress, validator: _validateEmail),
+                const SizedBox(height: 12),
+                _buildField(controller: _phoneController, label: 'Số điện thoại', icon: Icons.phone_outlined, keyboard: TextInputType.phone, validator: _validatePhone),
                 const SizedBox(height: 12),
                 _buildPasswordField(controller: _passwordController, label: 'Mật khẩu', obscure: _obscurePassword, validator: _validatePassword, onToggle: () => setState(() => _obscurePassword = !_obscurePassword)),
                 const SizedBox(height: 12),
