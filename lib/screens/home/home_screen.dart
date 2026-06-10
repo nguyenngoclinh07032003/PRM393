@@ -63,9 +63,17 @@ class _HomeScreenState extends State<HomeScreen> {
             // Header
             Row(
               children: [
-                const CircleAvatar(
-                  backgroundColor: primaryColor,
-                  child: Icon(Icons.person, color: Colors.white),
+                CircleAvatar(
+                  backgroundColor: AppProvider.of(context).avatarColor,
+                  child: Text(
+                    AppProvider.of(context).userName.isNotEmpty
+                        ? AppProvider.of(context).userName[0].toUpperCase()
+                        : '?',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(

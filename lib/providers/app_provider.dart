@@ -7,10 +7,23 @@ class AppNotifier extends ChangeNotifier {
   String _userName = '';
   String _userEmail = '';
   String _userPhone = '';
+  // Màu avatar đại diện (thay cho ảnh thật khi chưa có image_picker)
+  int _avatarColorIndex = 0;
+
+  static const List<Color> avatarColors = [
+    Color(0xFF6A11CB), // tím (mặc định)
+    Color(0xFF2575FC), // xanh dương
+    Color(0xFFE91E63), // hồng
+    Color(0xFF00897B), // xanh lá
+    Color(0xFFFF6D00), // cam
+    Color(0xFF5D4037), // nâu
+  ];
 
   String get userName => _userName;
   String get userEmail => _userEmail;
   String get userPhone => _userPhone;
+  Color get avatarColor => avatarColors[_avatarColorIndex];
+  int get avatarColorIndex => _avatarColorIndex;
 
   void setUserInfo({
     required String name,
@@ -26,6 +39,25 @@ class AppNotifier extends ChangeNotifier {
     }
     if (_phone.isEmpty || _phone == '0912 345 678') {
       _phone = phone.isNotEmpty ? phone : _phone;
+    }
+    notifyListeners();
+  }
+
+  void updateUserInfo({
+    required String name,
+    required String email,
+    required String phone,
+    required String address,
+    int? avatarColorIndex,
+  }) {
+    _userName = name;
+    _userEmail = email;
+    _userPhone = phone;
+    _recipientName = name;
+    _phone = phone;
+    _address = address;
+    if (avatarColorIndex != null) {
+      _avatarColorIndex = avatarColorIndex;
     }
     notifyListeners();
   }

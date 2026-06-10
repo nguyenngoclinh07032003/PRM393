@@ -5,6 +5,7 @@ import '../auth/login_screen.dart';
 import 'address_screen.dart';
 import 'favorites_screen.dart';
 import 'my_orders_screen.dart';
+import 'settings_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -33,11 +34,23 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: primaryColor, width: 2)),
-                    child: const CircleAvatar(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: primaryColor, width: 2),
+                    ),
+                    child: CircleAvatar(
                       radius: 40,
-                      backgroundColor: primaryColor,
-                      child: Icon(Icons.person, color: Colors.white, size: 46),
+                      backgroundColor: app.avatarColor,
+                      child: Text(
+                        app.userName.isNotEmpty
+                            ? app.userName[0].toUpperCase()
+                            : '?',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -95,7 +108,7 @@ class ProfileScreen extends StatelessWidget {
                 onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Phương thức thanh toán'))),
               ),
               _buildMenuItem(context, Icons.settings_outlined, 'Cài đặt',
-                onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Cài đặt'))),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsScreen())),
               ),
               _buildMenuItem(context, Icons.power_settings_new, 'Đăng xuất',
                 isLogout: true,
