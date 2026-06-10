@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = false);
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
+      MaterialPageRoute(builder: (_) => HomeScreen(key: homeScreenKey)),
     );
   }
 

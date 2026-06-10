@@ -14,9 +14,17 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
+// Key toàn cục để các màn hình khác có thể điều hướng tab
+final homeScreenKey = GlobalKey<_HomeScreenState>();
+
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   int _selectedCategory = 0;
+
+  // Dùng để chuyển tab từ bên ngoài (ví dụ: từ OrderSuccessScreen)
+  void goToTab(int index) {
+    setState(() => _selectedIndex = index);
+  }
 
   final _categories = ['Tất cả', 'Thời trang', 'Điện tử', 'Phụ kiện', 'Giày dép'];
 
