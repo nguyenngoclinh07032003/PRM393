@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'providers/app_provider.dart';
 import 'providers/cart_provider.dart';
-import 'screens/auth/login_screen.dart';
+import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/profile/address_screen.dart';
 
 // File này được tạo tự động bởi flutterfire configure
@@ -61,7 +61,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        MaterialPageRoute(builder: (_) => const OnboardingScreen()),
       );
     });
   }

@@ -382,3 +382,225 @@ class CountBadge extends StatelessWidget {
     );
   }
 }
+
+
+/// Ripple effect widget
+class RippleAnimation extends StatefulWidget {
+  final Widget child;
+  final Duration duration;
+
+  const RippleAnimation({
+    super.key,
+    required this.child,
+    this.duration = const Duration(seconds: 2),
+  });
+
+  @override
+  State<RippleAnimation> createState() => _RippleAnimationState();
+}
+
+class _RippleAnimationState extends State<RippleAnimation>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: widget.duration,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            _buildRipple(0.0),
+            _buildRipple(0.3),
+            _buildRipple(0.6),
+            widget.child,
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildRipple(double delay) {
+    return ScaleTransition(
+      scale: Tween<double>(begin: 1.0, end: 1.4).animate(
+        CurvedAnimation(
+          parent: _controller,
+          curve: Interval(
+            delay,
+            1.0,
+            curve: Curves.easeOut,
+          ),
+        ),
+      ),
+      child: FadeTransition(
+        opacity: Tween<double>(begin: 0.5, end: 0.0).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: Interval(
+              delay,
+              1.0,
+              curve: Curves.easeOut,
+            ),
+          ),
+        ),
+        child: Container(
+          width: 100,
+          height: 100,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: primaryColor,
+              width: 2,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Loading overlay
+class LoadingOverlay extends StatelessWidget {
+  final bool isLoading;
+  final Widget child;
+  final String? message;
+
+  const LoadingOverlay({
+    super.key,
+    required this.isLoading,
+    required this.child,
+    this.message,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        child,
+        if (isLoading)
+          Container(
+            color: Colors.black.withValues(alpha: 0.5),
+            child: Center(
+              child: AppCard(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+                    ),
+                    if (message != null) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        message!,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: textGray,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Success checkmark animation
+class SuccessCheckmark extends StatefulWidget {
+  final double size;
+  final Color color;
+
+  const SuccessCheckmark({
+    super.key,
+    this.size = 100,
+    this.color = successColor,
+  });
+
+  @override
+  State<SuccessCheckmark> createState() => _SuccessCheckmarkState();
+}
+
+class _SuccessCheckmarkState extends State<SuccessCheckmark>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _checkAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.0, 0.5, curve: Curves.elasticOut),
+      ),
+    );
+
+    _checkAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+      ),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: Container(
+            width: widget.size,
+            height: widget.size,
+            decoration: BoxDecoration(
+              color: widget.color.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Icon(
+                Icons.check_circle,
+                size: widget.size * 0.7,
+                color: widget.color,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
