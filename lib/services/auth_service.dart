@@ -1,12 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-// ═══════════════════════════════════════════════════════════════════════════
-// 🔥 FIREBASE CONFIGURATION
-// ═══════════════════════════════════════════════════════════════════════════
-// Set to FALSE to use mock authentication (no Firebase needed for testing)
-// Set to TRUE to use real Firebase (requires firebase_options.dart configured)
-const bool USE_REAL_FIREBASE = false;
+import '../config/app_config.dart';
 
 /// Kết quả trả về từ các thao tác auth
 class AuthResult {

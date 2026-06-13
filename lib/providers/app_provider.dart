@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../models/cart_item.dart';
 import '../models/order.dart';
+import '../config/app_config.dart';
+import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../services/order_service.dart';
 import '../services/favorite_service.dart';
@@ -51,6 +53,14 @@ class AppNotifier extends ChangeNotifier {
   // ─────────────────────────────────────────────────────────────────────────
 
   Future<void> loadFromFirestore(List<Product> allProducts) async {
+    if (!USE_REAL_FIREBASE) {
+      // Mock mode: Load mock data
+      _loadMockData();
+      notifyListeners();
+      return;
+    }
+
+    // Firebase mode: Load real data
     // Thông tin user
     final user = await UserService.getCurrentUser();
     if (user != null) {
@@ -86,6 +96,26 @@ class AppNotifier extends ChangeNotifier {
     );
 
     notifyListeners();
+  }
+
+  void _loadMockData() {
+    // Load mock user data from AuthService
+    final mockUserId = AuthService.getMockCurrentUserId();
+    final mockUserName = AuthService.getMockCurrentUserName();
+    
+    if (mockUserId != null) {
+      _userName = mockUserName ?? 'User';
+      _userEmail = 'mock@example.com';
+      _userPhone = '0123456789';
+      _address = '123 Đường ABC, Quận 1, TP.HCM';
+      _avatarColorIndex = 0;
+      _recipientName = mockUserName ?? 'User';
+      _phone = '0123456789';
+    }
+    
+    // Mock data không có orders và favorites ban đầu
+    _orders.clear();
+    _favorites.clear();
   }
 
   // ─────────────────────────────────────────────────────────────────────────

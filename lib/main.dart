@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
+import 'config/app_config.dart';
 import 'providers/app_provider.dart';
 import 'providers/cart_provider.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/profile/address_screen.dart';
-import 'services/auth_service.dart';
 
 // File này được tạo tự động bởi flutterfire configure
 // Chạy: flutterfire configure --project=prm393-9f30f
