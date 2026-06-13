@@ -1,6 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// ═══════════════════════════════════════════════════════════════════════════
+// 🔥 FIREBASE CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════════════
+// Set to FALSE to use mock authentication (no Firebase needed for testing)
+// Set to TRUE to use real Firebase (requires firebase_options.dart configured)
+const bool USE_REAL_FIREBASE = false;
+
 /// Kết quả trả về từ các thao tác auth
 class AuthResult {
   final bool success;
@@ -14,9 +21,16 @@ class AuthService {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
 
+  // Mock data for testing
+  static final Map<String, Map<String, dynamic>> _mockUsers = {};
+  static String? _mockCurrentUserId;
+  static String? _mockCurrentUserName;
+
   /// User đang đăng nhập
-  static User? get currentUser => _auth.currentUser;
-  static Stream<User?> get authStateChanges => _auth.authStateChanges();
+  static User? get currentUser => USE_REAL_FIREBASE ? _auth.currentUser : null;
+  static Stream<User?> get authStateChanges => USE_REAL_FIREBASE 
+      ? _auth.authStateChanges() 
+      : Stream.value(null);
 
   // ─── Đăng ký ─────────────────────────────────────────────────────────────
 
@@ -26,6 +40,15 @@ class AuthService {
     required String phone,
     required String password,
   }) async {
+    if (!USE_REAL_FIREBASE) {
+      return _mockRegister(
+        name: name,
+        email: email,
+        phone: phone,
+        password: password,
+      );
+    }
+
     try {
       final credential = await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -33,11 +56,8 @@ class AuthService {
       );
 
       final user = credential.user!;
-
-      // Cập nhật display name
       await user.updateDisplayName(name.trim());
 
-      // Lưu thông tin user vào Firestore
       await _db.collection('users').doc(user.uid).set({
         'uid': user.uid,
         'name': name.trim(),
@@ -62,6 +82,10 @@ class AuthService {
     required String email,
     required String password,
   }) async {
+    if (!USE_REAL_FIREBASE) {
+      return _mockLogin(email: email, password: password);
+    }
+
     try {
       final credential = await _auth.signInWithEmailAndPassword(
         email: email.trim(),
@@ -78,12 +102,22 @@ class AuthService {
   // ─── Đăng xuất ───────────────────────────────────────────────────────────
 
   static Future<void> logout() async {
+    if (!USE_REAL_FIREBASE) {
+      _mockCurrentUserId = null;
+      _mockCurrentUserName = null;
+      print('✅ MOCK: User logged out');
+      return;
+    }
     await _auth.signOut();
   }
 
   // ─── Reset mật khẩu qua email ────────────────────────────────────────────
 
   static Future<AuthResult> sendPasswordResetEmail(String email) async {
+    if (!USE_REAL_FIREBASE) {
+      return _mockResetPassword(email: email);
+    }
+
     try {
       await _auth.sendPasswordResetEmail(email: email.trim());
       return const AuthResult(success: true);
@@ -93,6 +127,87 @@ class AuthService {
       return AuthResult(success: false, errorMessage: 'Đã có lỗi xảy ra. Vui lòng thử lại.');
     }
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MOCK METHODS (for testing without Firebase)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  static Future<AuthResult> _mockRegister({
+    required String name,
+    required String email,
+    required String phone,
+    required String password,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    if (_mockUsers.containsKey(email)) {
+      return const AuthResult(
+        success: false,
+        errorMessage: 'Email này đã được sử dụng',
+      );
+    }
+
+    final userId = 'mock_user_${_mockUsers.length + 1}';
+    _mockUsers[email] = {
+      'userId': userId,
+      'name': name,
+      'email': email,
+      'password': password,
+      'phone': phone,
+      'address': '123 Đường ABC, Quận 1, TP.HCM',
+      'avatarColorIndex': 0,
+    };
+
+    print('✅ MOCK: User registered - $email (${_mockUsers.length} total users)');
+    return const AuthResult(success: true);
+  }
+
+  static Future<AuthResult> _mockLogin({
+    required String email,
+    required String password,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    if (!_mockUsers.containsKey(email)) {
+      return const AuthResult(
+        success: false,
+        errorMessage: 'Không tìm thấy tài khoản với email này',
+      );
+    }
+
+    if (_mockUsers[email]!['password'] != password) {
+      return const AuthResult(
+        success: false,
+        errorMessage: 'Mật khẩu không đúng',
+      );
+    }
+
+    _mockCurrentUserId = _mockUsers[email]!['userId'] as String;
+    _mockCurrentUserName = _mockUsers[email]!['name'] as String;
+    print('✅ MOCK: User logged in - $email (ID: $_mockCurrentUserId)');
+    return const AuthResult(success: true);
+  }
+
+  static Future<AuthResult> _mockResetPassword({required String email}) async {
+    await Future.delayed(const Duration(milliseconds: 800));
+
+    if (!_mockUsers.containsKey(email)) {
+      return const AuthResult(
+        success: false,
+        errorMessage: 'Không tìm thấy tài khoản với email này',
+      );
+    }
+
+    print('✅ MOCK: Password reset email sent - $email');
+    return const AuthResult(success: true);
+  }
+
+  static Map<String, dynamic>? getMockUserData(String email) {
+    return _mockUsers[email];
+  }
+
+  static String? getMockCurrentUserId() => _mockCurrentUserId;
+  static String? getMockCurrentUserName() => _mockCurrentUserName;
 
   // ─── Thông báo lỗi tiếng Việt ────────────────────────────────────────────
 

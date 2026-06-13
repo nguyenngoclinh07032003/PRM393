@@ -5,6 +5,7 @@ import 'providers/app_provider.dart';
 import 'providers/cart_provider.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/profile/address_screen.dart';
+import 'services/auth_service.dart';
 
 // File này được tạo tự động bởi flutterfire configure
 // Chạy: flutterfire configure --project=prm393-9f30f
@@ -13,9 +14,16 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  
+  // Chỉ khởi tạo Firebase nếu USE_REAL_FIREBASE = true
+  if (USE_REAL_FIREBASE) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } else {
+    print('🔶 RUNNING IN MOCK MODE - No Firebase connection needed');
+  }
+  
   runApp(const Ecommerce());
 }
 
