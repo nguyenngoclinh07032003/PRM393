@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../providers/app_provider.dart';
+import '../../services/auth_service.dart';
 import '../../utils/format.dart';
 import '../auth/login_screen.dart';
 import 'address_screen.dart';
@@ -9,6 +10,17 @@ import 'settings_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  static void _handleLogout(BuildContext context) async {
+    await AuthService.logout();
+    if (!context.mounted) return;
+    AppProvider.of(context).clear();
+    if (!context.mounted) return;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +124,9 @@ class ProfileScreen extends StatelessWidget {
               ),
               _buildMenuItem(context, Icons.power_settings_new, 'Đăng xuất',
                 isLogout: true,
-                onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen())),
+                onTap: () {
+                  _handleLogout(context);
+                },
               ),
             ]),
             const SizedBox(height: 24),

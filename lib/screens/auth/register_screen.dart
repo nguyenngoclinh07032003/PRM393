@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../providers/app_provider.dart';
+import '../../services/auth_service.dart';
 import '../../utils/format.dart';
 import 'login_screen.dart';
 
@@ -73,11 +74,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(seconds: 1));
+
+    final result = await AuthService.register(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      phone: _phoneController.text.trim(),
+      password: _passwordController.text,
+    );
+
     if (!mounted) return;
     setState(() => _isLoading = false);
 
-    // Lưu thông tin user vào AppProvider để dùng xuyên suốt app
+    if (!result.success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result.errorMessage ?? 'Đăng ký thất bại'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Lưu thông tin user vào AppProvider (local state)
     AppProvider.of(context).setUserInfo(
       name: _nameController.text.trim(),
       email: _emailController.text.trim(),

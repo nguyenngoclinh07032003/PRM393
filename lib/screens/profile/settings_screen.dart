@@ -44,10 +44,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSaving = true);
-    await Future.delayed(const Duration(milliseconds: 400));
-    if (!mounted) return;
 
-    AppProvider.of(context).updateUserInfo(
+    // updateUserInfo giờ là async — lưu lên Firestore
+    final success = await AppProvider.of(context).updateUserInfo(
       name: _nameCtrl.text.trim(),
       email: _emailCtrl.text.trim(),
       phone: _phoneCtrl.text.trim(),
@@ -55,15 +54,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
       avatarColorIndex: _selectedColorIndex,
     );
 
+    if (!mounted) return;
     setState(() => _isSaving = false);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Đã cập nhật thông tin thành công'),
-        backgroundColor: Colors.green,
+      SnackBar(
+        content: Text(success
+            ? 'Đã cập nhật thông tin thành công'
+            : 'Lưu thất bại, vui lòng thử lại'),
+        backgroundColor: success ? Colors.green : Colors.red,
       ),
     );
-    Navigator.pop(context);
+    if (success) Navigator.pop(context);
   }
 
   @override

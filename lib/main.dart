@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
 import 'providers/app_provider.dart';
 import 'providers/cart_provider.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/profile/address_screen.dart';
 
-void main() {
+// File này được tạo tự động bởi flutterfire configure
+// Chạy: flutterfire configure --project=prm393-9f30f
+// để tạo file lib/firebase_options.dart
+import 'firebase_options.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const Ecommerce());
 }
 
@@ -77,9 +87,15 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: Icon(Icons.shopping_bag, color: Colors.white, size: 52),
               ),
               SizedBox(height: 20),
-              Text('Shop App', style: TextStyle(fontSize: 34, fontWeight: FontWeight.bold, color: Colors.white)),
+              Text('Shop App',
+                  style: TextStyle(
+                    fontSize: 34,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  )),
               SizedBox(height: 8),
-              Text('Mua sắm thông minh', style: TextStyle(fontSize: 14, color: Color(0xCCFFFFFF))),
+              Text('Mua sắm thông minh',
+                  style: TextStyle(fontSize: 14, color: Color(0xCCFFFFFF))),
               SizedBox(height: 80),
               CircularProgressIndicator(color: Colors.white),
             ],
