@@ -17,9 +17,15 @@ void main() async {
   
   // Chỉ khởi tạo Firebase nếu USE_REAL_FIREBASE = true
   if (USE_REAL_FIREBASE) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    try {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+      print('✅ Firebase initialized successfully!');
+    } catch (e) {
+      print('❌ Firebase initialization failed: $e');
+      print('💡 Check SETUP_FIREBASE.md for instructions');
+    }
   } else {
     print('🔶 RUNNING IN MOCK MODE - No Firebase connection needed');
   }
