@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../config/app_config.dart';
+import 'local_storage_service.dart';
 
 /// Kết quả trả về từ các thao tác auth
 class AuthResult {
@@ -99,7 +100,8 @@ class AuthService {
     if (!USE_REAL_FIREBASE) {
       _mockCurrentUserId = null;
       _mockCurrentUserName = null;
-      print('✅ MOCK: User logged out');
+      await LocalStorageService.logout();
+      print('✅ MOCK: User logged out (local storage)');
       return;
     }
     await _auth.signOut();
@@ -134,25 +136,28 @@ class AuthService {
   }) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
-    if (_mockUsers.containsKey(email)) {
+    // Lưu vào local storage
+    final saved = await LocalStorageService.saveUser(
+      email: email,
+      password: password,
+      name: name,
+      phone: phone,
+    );
+
+    if (!saved) {
       return const AuthResult(
         success: false,
         errorMessage: 'Email này đã được sử dụng',
       );
     }
 
-    final userId = 'mock_user_${_mockUsers.length + 1}';
-    _mockUsers[email] = {
-      'userId': userId,
-      'name': name,
-      'email': email,
-      'password': password,
-      'phone': phone,
-      'address': '123 Đường ABC, Quận 1, TP.HCM',
-      'avatarColorIndex': 0,
-    };
-
-    print('✅ MOCK: User registered - $email (${_mockUsers.length} total users)');
+    _mockCurrentUserId = 'local_${email.hashCode}';
+    _mockCurrentUserName = name;
+    
+    // In số lượng users
+    final count = await LocalStorageService.getUserCount();
+    print('✅ MOCK: User registered - $email ($count total users in local storage)');
+    
     return const AuthResult(success: true);
   }
 
@@ -162,42 +167,48 @@ class AuthService {
   }) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
-    if (!_mockUsers.containsKey(email)) {
-      return const AuthResult(
+    // Xác thực qua local storage
+    final user = await LocalStorageService.authenticateUser(
+      email: email,
+      password: password,
+    );
+
+    if (user == null) {
+      // Kiểm tra xem user có tồn tại không để đưa ra message chính xác
+      final exists = await LocalStorageService.userExists(email);
+      return AuthResult(
         success: false,
-        errorMessage: 'Không tìm thấy tài khoản với email này',
+        errorMessage: exists
+            ? 'Mật khẩu không đúng'
+            : 'Không tìm thấy tài khoản với email này',
       );
     }
 
-    if (_mockUsers[email]!['password'] != password) {
-      return const AuthResult(
-        success: false,
-        errorMessage: 'Mật khẩu không đúng',
-      );
-    }
-
-    _mockCurrentUserId = _mockUsers[email]!['userId'] as String;
-    _mockCurrentUserName = _mockUsers[email]!['name'] as String;
-    print('✅ MOCK: User logged in - $email (ID: $_mockCurrentUserId)');
+    _mockCurrentUserId = 'local_${email.hashCode}';
+    _mockCurrentUserName = user['name'] as String;
+    
+    print('✅ MOCK: User logged in - $email (from local storage)');
     return const AuthResult(success: true);
   }
 
   static Future<AuthResult> _mockResetPassword({required String email}) async {
     await Future.delayed(const Duration(milliseconds: 800));
 
-    if (!_mockUsers.containsKey(email)) {
+    final exists = await LocalStorageService.userExists(email);
+    
+    if (!exists) {
       return const AuthResult(
         success: false,
         errorMessage: 'Không tìm thấy tài khoản với email này',
       );
     }
 
-    print('✅ MOCK: Password reset email sent - $email');
+    print('✅ MOCK: Password reset email sent - $email (local storage)');
     return const AuthResult(success: true);
   }
 
-  static Map<String, dynamic>? getMockUserData(String email) {
-    return _mockUsers[email];
+  static Future<Map<String, dynamic>?> getMockUserData(String email) async {
+    return await LocalStorageService.getUser(email);
   }
 
   static String? getMockCurrentUserId() => _mockCurrentUserId;

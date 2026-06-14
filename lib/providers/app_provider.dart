@@ -7,6 +7,7 @@ import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../services/order_service.dart';
 import '../services/favorite_service.dart';
+import '../services/local_storage_service.dart';
 
 class AppNotifier extends ChangeNotifier {
   // ── Thông tin người dùng ──
@@ -98,18 +99,28 @@ class AppNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _loadMockData() {
-    // Load mock user data from AuthService
-    final mockUserId = AuthService.getMockCurrentUserId();
-    final mockUserName = AuthService.getMockCurrentUserName();
+  void _loadMockData() async {
+    // Load mock user data from Local Storage
+    final currentUser = await LocalStorageService.getCurrentUser();
     
-    if (mockUserId != null) {
-      _userName = mockUserName ?? 'User';
+    if (currentUser != null) {
+      _userName = currentUser['name'] as String? ?? 'User';
+      _userEmail = currentUser['email'] as String? ?? '';
+      _userPhone = currentUser['phone'] as String? ?? '';
+      _address = currentUser['address'] as String? ?? '123 Đường ABC, Quận 1, TP.HCM';
+      _avatarColorIndex = currentUser['avatarColorIndex'] as int? ?? 0;
+      _recipientName = _userName;
+      _phone = _userPhone;
+      
+      print('💾 MOCK: Loaded user from local storage - $_userEmail');
+    } else {
+      // Fallback to default values
+      _userName = 'User';
       _userEmail = 'mock@example.com';
       _userPhone = '0123456789';
       _address = '123 Đường ABC, Quận 1, TP.HCM';
       _avatarColorIndex = 0;
-      _recipientName = mockUserName ?? 'User';
+      _recipientName = 'User';
       _phone = '0123456789';
     }
     
